@@ -122,6 +122,7 @@ class CrosswordCreator():
                     count += 1
                 if count == len(self.domains[y]):
                     self.domains[x].remove(val_x)
+                    revisone_made = True
         return revisone_made
 
 
@@ -134,6 +135,7 @@ class CrosswordCreator():
         Return True if arc consistency is enforced and no domains are empty;
         return False if one or more domains end up empty.
         """
+
         if not arcs:
             arcs = []
             for variable in self.crossword.variables:
@@ -150,9 +152,8 @@ class CrosswordCreator():
                 x_neighbors.remove(y)
                 for z in x_neighbors:
                     arcs.append((z,x))
-        
-        return True
 
+        return True
 
     def assignment_complete(self, assignment):
         """
@@ -185,13 +186,9 @@ class CrosswordCreator():
             neighbors = self.crossword.neighbors(key)
             for neighbor in neighbors:
                 overlap = self.crossword.overlaps[key,neighbor]
-                temp = self.domains[neighbor].copy()
-                for niegbors_value in temp:
-                    if overlap:
-                        if assignment[key][overlap[0]] != niegbors_value[overlap[1]]:
-                            print("false")
-                            return False
-
+                if neighbor in assignment:
+                    if assignment[key][overlap[0]] != assignment[neighbor][overlap[1]]:
+                        return False
         return True
 
     def order_domain_values(self, var, assignment):

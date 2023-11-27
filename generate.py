@@ -117,14 +117,12 @@ class CrosswordCreator():
         x_domains = self.domains[x].copy()
         for val_x in x_domains:
             count = 0
-            for val_y in self.domains[y]:
+            for val_y in self.domains[y]:        
                 if val_y[overlap[1]] != val_x[overlap[0]]:
                     count += 1
                 if count == len(self.domains[y]):
                     self.domains[x].remove(val_x)
-                    revisone_made = True
         return revisone_made
-
 
 
     def ac3(self, arcs=None):
@@ -152,6 +150,7 @@ class CrosswordCreator():
                 x_neighbors.remove(y)
                 for z in x_neighbors:
                     arcs.append((z,x))
+        
         return True
 
 
@@ -174,6 +173,7 @@ class CrosswordCreator():
         puzzle without conflicting characters); return False otherwise.
         """
         word = None
+
         for key in assignment:
             if key.length != len(assignment[key]):
                 return False           
@@ -185,10 +185,13 @@ class CrosswordCreator():
             neighbors = self.crossword.neighbors(key)
             for neighbor in neighbors:
                 overlap = self.crossword.overlaps[key,neighbor]
-                if overlap:
-                    if assignment[key][overlap[0]] != self.domains[neighbor].copy().pop()[overlap[1]]:
-                        return False
-            
+                temp = self.domains[neighbor].copy()
+                for niegbors_value in temp:
+                    if overlap:
+                        if assignment[key][overlap[0]] != niegbors_value[overlap[1]]:
+                            print("false")
+                            return False
+
         return True
 
     def order_domain_values(self, var, assignment):
@@ -221,24 +224,20 @@ class CrosswordCreator():
         degree. If there is a tie, any of the tied variables are acceptable
         return values.
         """
-        # selected_var = None
-        # for var in self.crossword.variables:
-        #     if var in assignment:
-        #         continue
-        #     if not selected_var:
-        #         selected_var = var
-        #     if len(self.domains[selected_var]) > len(self.domains[var]):
-        #         selected_var = var
-        #     if len(self.domains[selected_var]) == len(self.domains[var]):
-        #         selected_var_degree = len(self.crossword.neighbors(selected_var))
-        #         var_degree = len(self.crossword.neighbors(var))
-        #         if var_degree > selected_var_degree:
-        #             selected_var = var
-        # return selected_var
-
+        selected_var = None
         for var in self.crossword.variables:
-            if var not in assignment:
-                return var
+            if var in assignment:
+                continue
+            if not selected_var:
+                selected_var = var
+            if len(self.domains[selected_var]) > len(self.domains[var]):
+                selected_var = var
+            if len(self.domains[selected_var]) == len(self.domains[var]):
+                selected_var_degree = len(self.crossword.neighbors(selected_var))
+                var_degree = len(self.crossword.neighbors(var))
+                if var_degree > selected_var_degree:
+                    selected_var = var
+        return selected_var
 
 
     def backtrack(self, assignment):
@@ -262,8 +261,8 @@ class CrosswordCreator():
                 if result:
                     return result
                 del assignment[var]
+        
         return None
-
 
 
 def main():
